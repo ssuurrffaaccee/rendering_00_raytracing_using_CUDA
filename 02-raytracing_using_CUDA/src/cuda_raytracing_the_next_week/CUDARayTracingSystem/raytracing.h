@@ -14,6 +14,6 @@ __global__ void raytracingRendering(float *acc_buffer, uchar4 *out_texture,
                                     curandState *randState,
                                     bool is_camera_dirty, int acc_times);
 __global__ void initMemoryRecorder();
-__global__ void createWorld(cudaTextureObject_t texture_object_,curandState *randState);
+__global__ void createWorld(cudaTextureObject_t texture_object,curandState *randState);
 __global__ void freeMemoryRecorder();
 #endif
