@@ -1,0 +1,23 @@
+#include <cstdio>
+#include <cuda_runtime.h>
+
+__device__ void say_hello() {
+    printf("Hello, world from GPU!\n");
+}
+
+//default host
+void say_hello_host() {
+    printf("Hello, world from CPU!\n");
+}
+
+__global__ void kernel() {
+    say_hello();
+}
+
+int main() {
+    kernel<<<1, 1>>>();
+    cudaDeviceSynchronize();//stop, then wait gpu to finish
+    say_hello_host();
+    return 0;
+}
+
