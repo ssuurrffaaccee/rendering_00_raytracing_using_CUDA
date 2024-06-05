@@ -8,6 +8,7 @@ reference: [Ray Tracing in One Weekend — The Book Series](https://raytracing.g
 + Material: Diffuse, Meta, Dielectrics 
 + Defocus Blur
 + Geometry: Sphere
+
 ![demo](./02-raytracing_using_CUDA/screenshot/ray10.PNG)
 ![demo](./02-raytracing_using_CUDA/screenshot/ray11.PNG)
 ## Ray Tracing: The Next Week
@@ -24,6 +25,9 @@ reference: [Ray Tracing in One Weekend — The Book Series](https://raytracing.g
 ![demo](./02-raytracing_using_CUDA/screenshot/ray20.PNG)
 ![demo](./02-raytracing_using_CUDA/screenshot/ray21.PNG)
 ![demo](./02-raytracing_using_CUDA/screenshot/ray22.PNG)
+
+## Ray Tracing: The Rest of Your Life 
+  TODO:!!!!
 
 
 # 01 learn cuda 02
