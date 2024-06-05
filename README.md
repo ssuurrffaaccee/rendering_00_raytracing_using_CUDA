@@ -36,6 +36,7 @@ reference: [CUDA by Example: An Introduction to General-Purpose GPU](https://dev
 ### x00-viewer_cpu
 ![demo](./01-learn_cuda_02/src/x00-viewer_cpu/res.png)
 ### x01-viewer_gpu
+![demo](./01-learn_cuda_02/src/x01-viewer_gpu/res.png)
 ### cu00-enum_gpu
 ### cu01-set_gpu
 ### cu02-simple_kennal_param
