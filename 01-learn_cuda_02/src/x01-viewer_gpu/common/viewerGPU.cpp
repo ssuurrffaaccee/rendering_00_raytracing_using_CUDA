@@ -1,56 +1,68 @@
 #include "viewerGPU.hpp"
 
 #include "cuda_helper.hpp"
-static void glfwErrorPrint(int code, const char *info) {
+static void glfwErrorPrint(int code, const char *info)
+{
   std::cout << "GLFW error! code: " << code << " info: " << info << "\n";
 }
-void GPUViewer::init(int width, int height, bool isAnim);
+void GPUViewer::init(int width, int height, bool isAnim)
 {
   width_ = width;
   height_ = height;
   isAnim_ = isAnim;
+  HANDLE_ERROR(cudaMalloc((void **)&pixels_, width_ * height * 4));
+  // cudaGLSetGLDevice(0);
 }
 void GPUViewer::displayAndExit(
-    std::function<void(unsigned char *, int, int)> updateFunc) {
+    std::function<void(uchar4 *, int, int)> updateFunc)
+{
   initWindowAndOpengGL();
   registeCallback();
   buildeShader();
   initTexture();
-  if (!isAnim) {
-    unsigned char *devPtr{nullptr};
-    int size{0};
-    HANDLE_ERROR(cudaGraphicsMapResources(1, resource_, nullptr));
-    HANDLE_ERROR(cudaGraphicsResourceGetMappedPointer((void **)&devPtr, &size,
-                                                      resource_));
-    updateFunc(devPtr, width_, height_);
-    HANDLE_ERROR(cudaGraphicsUnmapResources(1, resource_, nullptr));
-    while (!glfwWindowShouldClose(window_)) {
+  if (!isAnim_)
+  {
+    cudaArray_t texturePtr;
+    HANDLE_ERROR(cudaGraphicsMapResources(1, &resource_, nullptr));
+    HANDLE_ERROR(cudaGraphicsSubResourceGetMappedArray(&texturePtr, resource_, 0, 0));
+    updateFunc(pixels_, width_, height_);
+    HANDLE_ERROR(cudaMemcpyToArray(texturePtr, 0, 0, pixels_,
+                                   width_ * height_ * 4, cudaMemcpyDeviceToDevice));
+    HANDLE_ERROR(cudaGraphicsUnmapResources(1, &resource_, nullptr));
+    while (!glfwWindowShouldClose(window_))
+    {
       glfwPollEvents();
       draw();
       glfwSwapBuffers(window_);
     }
-  } else {
-    unsigned char *devPtr{nullptr};
-    int size{0};
-    while (!glfwWindowShouldClose(window_)) {
+  }
+  else
+  {
+    cudaArray_t texturePtr;
+    while (!glfwWindowShouldClose(window_))
+    {
       glfwPollEvents();
-      HANDLE_ERROR(cudaGraphicsMapResources(1, resource_, nullptr));
-      HANDLE_ERROR(cudaGraphicsResourceGetMappedPointer((void **)&devPtr, &size,
-                                                        resource_));
-      updateFunc(devPtr, width_, height_);
-      HANDLE_ERROR(cudaGraphicsUnmapResources(1, resource_, nullptr));
+      HANDLE_ERROR(cudaGraphicsMapResources(1, &resource_, nullptr));
+      HANDLE_ERROR(cudaGraphicsSubResourceGetMappedArray(&texturePtr, resource_, 0, 0));
+      updateFunc(pixels_, width_, height_);
+      HANDLE_ERROR(cudaMemcpyToArray(texturePtr, 0, 0, pixels_,
+                                     width_ * height_ * 4, cudaMemcpyDeviceToDevice));
+      HANDLE_ERROR(cudaGraphicsUnmapResources(1, &resource_, nullptr));
       draw();
       glfwSwapBuffers(window_);
     }
   }
 }
-GPUViewer::~GPUViewer() {
+GPUViewer::~GPUViewer()
+{
   HANDLE_ERROR(cudaGraphicsUnregisterResource(resource_));
+  HANDLE_ERROR(cudaFree(pixels_));
   glDeleteTextures(1, &textureToShow_.ID);
   glfwDestroyWindow(window_);
   glfwTerminate();
 }
-void GPUViewer::initWindowAndOpengGL() {
+void GPUViewer::initWindowAndOpengGL()
+{
   glfwSetErrorCallback(&glfwErrorPrint);
   CHECK_WITH_INFO(glfwInit() == GLFW_TRUE, "Failed to initialize GLFW");
   // glGetError();
@@ -75,18 +87,22 @@ void GPUViewer::initWindowAndOpengGL() {
   CHECK_WITH_INFO(gladLoadGLLoader((GLADloadproc)glfwGetProcAddress),
                   "Failed to initialize GLAD");
 }
-void GPUViewer::registeCallback() {
+void GPUViewer::registeCallback()
+{
   glfwSetWindowUserPointer(window_, this);
   glfwSetKeyCallback(window_, keyCallback);
 }
 void GPUViewer::keyCallback(GLFWwindow *window, int key, int scancode,
-                            int action, int mods) {
+                            int action, int mods)
+{
   // GPUViewer* app = (GPUViewer*)glfwGetWindowUserPointer(window);
-  if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE) {
+  if (action == GLFW_PRESS && key == GLFW_KEY_ESCAPE)
+  {
     glfwSetWindowShouldClose(window, GLFW_TRUE);
   }
 }
-void GPUViewer::draw(void) {
+void GPUViewer::draw(void)
+{
   glClearColor(0.0, 0.0, 0.0, 0.0);
   glClear(GL_COLOR_BUFFER_BIT);
   renderer_->drawSprite(textureToShow_, glm::vec2{0.0f, 0.0f},
@@ -96,15 +112,18 @@ void GPUViewer::draw(void) {
                         });
 }
 
-void GPUViewer::initTexture() {
+void GPUViewer::initTexture()
+{
   textureToShow_.internalFormat = GL_RGBA;
   textureToShow_.imageFormat = GL_RGBA;
   textureToShow_.generate(width_, height_, nullptr);
+  // textureToShow_.bind();
   HANDLE_ERROR(
-      cudaGraphicsGLRegisterImage(&resource_, textureToShow_.ID, GL_RGBA,
+      cudaGraphicsGLRegisterImage(&resource_, textureToShow_.ID, GL_TEXTURE_2D,
                                   cudaGraphicsRegisterFlagsWriteDiscard));
 }
-void GPUViewer::buildeShader() {
+void GPUViewer::buildeShader()
+{
   std::string vertSource{"./sprite.vert"};
   std::string fragSource{"./sprite.frag"};
   CHECK(fs::exist(vertSource))

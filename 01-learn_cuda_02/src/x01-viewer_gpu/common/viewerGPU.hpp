@@ -12,6 +12,7 @@
 #include "check.hpp"
 #include "fs.hpp"
 #include "spriteRenderer.hpp"
+#include "cuda_runtime_api.h"
 #include "cuda_gl_interop.h"
 static void glfwErrorPrint(int code, const char *info);
 class GPUViewer
@@ -27,7 +28,7 @@ public:
     static GPUViewer instance_{};
     return instance_;
   }
-  void displayAndExit(std::function<void(unsigned char *, int, int)> updateFunc);
+  void displayAndExit(std::function<void(uchar4 *, int, int)> updateFunc);
   ~GPUViewer();
 
 private:
@@ -42,8 +43,9 @@ private:
   GPUViewer() {}
   int width_;
   int height_;
+  uchar4* pixels_;
   GLFWwindow *window_{nullptr};
-  cudaGraphicsResource *resource_{nullptr};
+  cudaGraphicsResource_t resource_{0};
   std::unique_ptr<SpriteRenderer> renderer_{nullptr};
   Texture2D textureToShow_{};
   bool isAnim_{true};
