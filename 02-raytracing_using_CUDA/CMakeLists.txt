@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.26)
 project(
-  learning_ecs
+  learning_cuda_raytracing
   VERSION 1.0.0
   LANGUAGES C CXX CUDA)
 set(CMAKE_CXX_STANDARD 17)
@@ -54,5 +54,6 @@ endfunction()
 
 learn_step(cuda_raytracing_in_one_weekend)
 learn_step(cuda_raytracing_the_next_week)
+learn_step(cuda_raytracing_the_rest_of_your_life)
 
 

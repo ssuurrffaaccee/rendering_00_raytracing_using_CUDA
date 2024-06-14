@@ -26,8 +26,16 @@ reference: [Ray Tracing in One Weekend — The Book Series](https://raytracing.g
 ![demo](./02-raytracing_using_CUDA/screenshot/ray21.PNG)
 ![demo](./02-raytracing_using_CUDA/screenshot/ray22.PNG)
 
+
 ## Ray Tracing: The Rest of Your Life 
-  TODO:!!!!
+### features
++ Light Scattering
++ Importance Sampling
++ Sampling Lights Directly
++ Mixture Densities
+
+![demo](./02-raytracing_using_CUDA/screenshot/ray30.PNG)
+
 
 
 # 01 learn cuda 02

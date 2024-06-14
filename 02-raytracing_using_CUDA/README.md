@@ -26,7 +26,12 @@ reference: [Ray Tracing in One Weekend — The Book Series](https://raytracing.g
 ![demo](./screenshot/ray22.PNG)
 
 ## Ray Tracing: The Rest of Your Life 
-  TODO:!!!!
+### features
++ Light Scattering
++ Importance Sampling
++ Sampling Lights Directly
++ Mixture Densities
+![demo](./screenshot/ray30.PNG)
 
 
 
